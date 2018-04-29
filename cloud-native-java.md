@@ -24,8 +24,13 @@ There is a `BDDMockito` class that supports BDD style mock objects.
 
 The `webEnvironment` attribute of `@SpringBootTest` describes how Spring Boot should configure the embedded servlet container that your application uses at runtime (mock servlet environment, real servlet environment, or no servlet environment).
 
-If you want to compare an object to a JSON equivalent stored in a file, you can use a `JacksonTester<MyClass>` and read a JSON file from `src/test/resources` for the expected value.
+Spring Boot lets you test different slices of your application using specific annotations:
 
-Use `@WebMvcTest` and `@MockMvc` to test controllers by request mappings instead of directly invoking the methods on the controller.
+* `@JsonTest` to test JSON serialization and deserialization.  If you want to compare an object to a JSON equivalent stored in a file, you can use a `JacksonTester<MyClass>` and read a JSON file from `src/test/resources` for the expected value.
+* `@WebMvcTest` in conjunction with `@MockMvc` to test controllers by request mappings instead of directly invoking the methods on the controller.
+* `@DataJpaTest` to test Spring Data JPA repositories.
+* `@RestClientTest` with `@MockRestServiceServer` to test classes that use `RestTemplate`.
+
+
 
  
