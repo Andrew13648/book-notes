@@ -6,6 +6,10 @@
 
 Microservies are small, independent services built around specific business capabilities.
 
+> One of the main ideas behind building microservices is the ability to have feature teams organize themselves and applications around specific business capabilities. (38)
+
+### Chapter 2
+
 Spring Initializr can be used to build up a new Spring Boot application.
 
 ### Chapter 4
