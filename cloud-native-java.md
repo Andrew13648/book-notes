@@ -4,13 +4,56 @@
 
 > The key is to understand that agile is a value, not a destination (33)
 
-Microservies are small, independent services built around specific business capabilities.
+Microservices are small, independent services built around specific business capabilities.
 
 > One of the main ideas behind building microservices is the ability to have feature teams organize themselves and applications around specific business capabilities. (38)
 
 ### Chapter 2
 
 Spring Initializr can be used to build up a new Spring Boot application.
+
+> The Spring framework `Assert` class supports design-by-contract behavior, not unit testing!
+
+### Chapter 3 - Twelve-Factor Application Style Configuration
+
+Configuration in Spring describes how you want to wire beans together.  For XML, use `ClassPathXmlApplicationContext`.  For annotations, use `AnnotationConfigApplicationContext`.
+
+In a Twelve-Factor application, configuration refers to values that may change from one environment to another.
+
+You can configure a class to load values from a properties file by annotating it with `@PropertySource`.  For example, `@PropertySource("classpath:some.properties")` will set `@Value` values from the `some.properties` file.  You will also need to have an instance of `PropertySourcesPlaceholderConfigurer` created.  For example:
+
+```
+@Configuration
+@PropertySource("classpath:some.properties")
+public class AppConfigMongoDB {
+	
+	@Value("${my.value}")
+	private String myValue;
+	
+	@Bean
+	static PropertySourcesPlaceholderConfigurer pspc() {
+		return new PropertySourcesPlaceholderConfigurer();
+	}
+}
+```
+
+Environment properties can be extracted from the `Environment` class.  
+
+Spring Boot will automatically read configuration files based on the profile name, like `src/main/resources/application-foo.properties` where `foo` is the current profile.
+
+Spring Boot will also automatically load YAML files if SnakeYAML is on the classpath.
+
+Spring Boot makes both `-D` arguments to the `java` process and environment variables available as properties.
+
+You can map configuration values straight to POJOs by using `@EnableConfigurationProperties` on your Spring application along with `@ConfigurationProperties` on your POJO.
+
+You can use a Spring Cloud Config Server to manage your application configuration externally from your app through a REST API.  With Cloud Foundry, there is a Config Server service in the service catalog.
+
+You can combine this config server with the `@RefreshScope` annotation to make the bean refresh whenever a refresh event is triggered (`RefreshScopeRefreshedEvent`).  
+
+> You can trigger the refresh by sending an empty `POST` request to `http://127.0.0.1:8080/refresh`, which is a Spring Boot Actuator endpoint that is exposed automatically.
+
+This can be done via curl: `curl -d{} http://127.0.0.1:8080/refresh`.
 
 ### Chapter 4
 
@@ -34,6 +77,7 @@ Spring Boot lets you test different slices of your application using specific an
 * `@WebMvcTest` in conjunction with `@MockMvc` to test controllers by request mappings instead of directly invoking the methods on the controller.
 * `@DataJpaTest` to test Spring Data JPA repositories.
 * `@RestClientTest` with `@MockRestServiceServer` to test classes that use `RestTemplate`.
+
 
 
 
