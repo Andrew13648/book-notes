@@ -78,7 +78,35 @@ Spring Boot lets you test different slices of your application using specific an
 * `@DataJpaTest` to test Spring Data JPA repositories.
 * `@RestClientTest` with `@MockRestServiceServer` to test classes that use `RestTemplate`.
 
+### Chapter 5 - The Forklifted Application
 
+This chapter is about moving an existing application to the cloud.  It is not about building applications that are native to the cloud (that's the focus of all the other chapters).
 
+Cloud Foundry doesn't care what kind of application it's running.  It cares about Linux containers, which are operating system processes.  
 
+> Buildpacks tell Cloud Foundry what to do given a Java `.jar`, a Rails application, a Java `.war`, a Node.js application, etc., and how to turn it into a container that the platform can treat like a process.  A buildpack is a set of *callbacks* -- shell scripts that respond to well-known calls -- that the runtime will use to ultimately create a Linux container to be run. This process is called *staging*. 
+
+You can use a custom build pack  with an argument to `cf push`:
+
+```
+cf push -b https://github.com/a/custom-buildpack.git#my-branch custom-app
+```
+
+> Alternatively, you can specify the buildpack in the `manifest.yml` file that accompanies your application.
+
+IBM maintains a Websphere Liberty buildpack for applications historically deployed using WebSphere.
+
+Cloud Foundry supports runing containerized (Docker) applications.  However, it is not recommended due to security, extra work for DevOps, and they are harder to patch/update.
+
+> Cloud Foundry applications consume backing services by looking for their locators and credentials in an environment variable called `VCAP_SERVICES`. The simplicity of this approach is a feature: any language can pluck the environment variable out of the environment and parse the embedded JSON to extract things like service hosts, ports, and credentials.
+
+Cloud Foundry is HTTP-first.  If you need to do RPC with RMI/EJB, you will need to tunnel it through HTTP.
+
+Spring Session can be used for `HttSession` and makes it easy to write session data to Redis, Hazelcast, etc.
  
+Cloud Foundry doesn't provide a durable filesystem, but you can use FUSE-based filesystems like SSHFS on Cloud Foundry.  This would let you mount a remote filesystem using SSH.  If you don't care about using `java.io.File`, you can use an alternative like MongoDB GridFS.
+
+> Cloud Foundry terminates HTTPS requests at the highly available proxy that guards all applications.  Any call that you route to your application will respond to HTTPS as well.
+
+The Spring Boot Actuator provides a `/health` endpoint to give basic application health information.
+
