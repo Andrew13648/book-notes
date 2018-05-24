@@ -102,11 +102,54 @@ Cloud Foundry supports runing containerized (Docker) applications.  However, it 
 
 Cloud Foundry is HTTP-first.  If you need to do RPC with RMI/EJB, you will need to tunnel it through HTTP.
 
-Spring Session can be used for `HttSession` and makes it easy to write session data to Redis, Hazelcast, etc.
+Spring Session can be used for `HttpSession` and makes it easy to write session data to Redis, Hazelcast, etc.
  
 Cloud Foundry doesn't provide a durable filesystem, but you can use FUSE-based filesystems like SSHFS on Cloud Foundry.  This would let you mount a remote filesystem using SSH.  If you don't care about using `java.io.File`, you can use an alternative like MongoDB GridFS.
 
 > Cloud Foundry terminates HTTPS requests at the highly available proxy that guards all applications.  Any call that you route to your application will respond to HTTPS as well.
 
 The Spring Boot Actuator provides a `/health` endpoint to give basic application health information.
+
+### Chapter 6 - Rest APIs
+
+You can handle the `OPTIONS` HTTP verb like this:
+
+```
+@RequestMapping(method = RequestMethod.OPTIONS)
+ResponseEntity<?> options() {
+	return ResponseEntity
+	.ok()
+	.allow(HttpMethod.GET, HttpMethod.POST,
+	HttpMethod.HEAD, HttpMethod.OPTIONS,
+	HttpMethod.PUT, HttpMethod.DELETE)
+	.build();
+}
+```
+
+Use `@GetMapping`, `@PostMapping`, etc., as an alternative to `@RequestMapping`.
+
+Building and returning a URI from a `@PostMapping`:
+
+```
+URI uri = MvcUriComponentsBuilder.fromController(getClass()).path("/{id}")
+.buildAndExpand(customer.getId()).toUri();
+return ResponseEntity.created(uri).body(customer);
+```
+
+> When Spring MVC sees a return value, it uses a strategy object, `HttpMessageConverter`, to convert the object into a representation suitable for the client. The client specifies what kind of representation it expects using content-negotiation. By default, Spring MVC looks at the incoming request’s Accept header for a media type, like application/json, application/xml, etc., that a
+configured `HttpMessageConverter` is capable of creating, given the object and the desired media type. This same process happens in reverse for data sent from the client to the service and passed to the handler methods as `@RequestBody` parameters
+
+Use `@ControllerAdvice` and `@ExceptionHandler` for handling errors thrown out of your controllers.
+
+HAL, or Hypertext Application Language, is a specialization of JSON with a content type of `application/hal+json` that is an encoding standard for describing link elements in JSON.  Spring Boot supports a HAL client called the HAL Browser, which can be added to a Spring Boot app through Spring Initializr (plus the actuator).
+
+> Postel’s law, also known as the *The Robustness Principle*, says that service implementations should be conservative in what they produce, but liberal in what they accept from others. If a service only needs a subset of a given message payload to do its work, it should not protest if there is extra information in the message for which it may not immediately have any use.
+
+The author recommends a `MAJOR.MINOR.PATCH versioning scheme, where:
+
+> The MAJOR version should change only when an API has breaking changes from its previous version. The MINOR version should change when an API has evolved, but existing clients should continue to work with it. A PATCH version change signals bug fixes to existing functionality.
+
+
+
+
 
